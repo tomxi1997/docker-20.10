@@ -71,11 +71,12 @@ jobs:
         mkdir -p src/github.com/docker
         mv libnetwork src/github.com/docker/libnetwork
         cd src/github.com/docker/libnetwork
-        go mod init github.com/docker/libnetwork/cmd/proxy
-        go mod vendor
-        go mod tidy
-        CGO_ENABLED=0 go build -a -ldflags '-extldflags "-static"' -o docker-proxy github.com/docker/libnetwork/cmd/proxy
-        sudo install -Dm 0700 docker-proxy $PREFIX/bin/docker-proxy
+        #go mod init github.com/docker/libnetwork
+        #go mod init github.com/docker/libnetwork/cmd/proxy
+       # go mod vendor
+       # go mod tidy
+        #CGO_ENABLED=0 go build -a -ldflags '-extldflags "-static"' -o docker-proxy github.com/docker/libnetwork/cmd/proxy
+       # sudo install -Dm 0700 docker-proxy $PREFIX/bin/docker-proxy
         
         
 
