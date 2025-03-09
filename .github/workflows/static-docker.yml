@@ -1,0 +1,118 @@
+name: Build static docker
+on:
+  watch:
+    types: [started]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build static docker by ${{ github.actor }}
+    runs-on: ubuntu-22.04-arm
+    if: github.event.repository.owner.id == github.event.sender.id
+    env:
+      CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
+      CCACHE_NOHASHDIR: "true"
+      CCACHE_HARDLINK: "true"
+      CI: "false"
+    steps:
+    - uses: actions/checkout@v4
+    - name: Prepare Configuration
+      run: |
+        echo "ENABLE_NETHUNTER=$(cat $CONFIG_ENV | grep -w "ENABLE_NETHUNTER" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
+        
+    - name: Set swap to 10G
+      uses: pierotofy/set-swap-space@master
+      with:
+        swap-size-gb: 10
+
+    - name: Setup build environment
+      run: |
+        echo "BUILD_TIME=$(TZ=Asia/Shanghai date "+%Y%m%d%H%M")" >> $GITHUB_ENV
+        echo "DEVICE=$(echo ${{ env.KERNEL_CONFIG }} | sed 's!vendor/!!;s/_defconfig//;s/_user//;s/-perf//')" >> $GITHUB_ENV
+        sudo apt-get update
+        sudo apt install -y curl vim git gcc clang crossbuild-essential-arm64 golang git libseccomp-dev cmake
+        mkdir -p $GITHUB_WORKSPACE/kernel_workspace
+        cd $GITHUB_WORKSPACE/kernel_workspace
+        git clone https://github.com/tomxi1997/docker-20.10.git
+
+  
+
+    - name: build static docker-cli 
+      run: |
+        cd $GITHUB_WORKSPACE/kernel_workspace/docker-20.10
+        export PREFIX=/data/docker
+        cd cli
+        docker buildx bake --set binary.platform=linux/arm64 
+        sudo install -Dm 0700 build/docker-linux-arm64 $PREFIX/bin/docker
+        
+          
+        
+
+    - name: build static docker demon
+      run: |
+        cd $GITHUB_WORKSPACE/kernel_workspace/docker-20.10
+        export PREFIX=/data/docker
+        cd moby
+        make binary
+        sudo install -Dm 0700 $GITHUB_WORKSPACE/kernel_workspace/moby/bundles/binary/dockerd $PREFIX/bin/dockerd-dev
+        #sudo install -Dm 0700 $GITHUB_WORKSPACE/kernel_workspace/moby/bundles/binary/docker-init $PREFIX/bin/docker-init
+        #sudo install -Dm 0700 $GITHUB_WORKSPACE/kernel_workspace/moby/bundles/binary/docker-proxy $PREFIX/bin/docker-proxy
+
+
+
+
+
+    - name: build static libnetwork
+      run: |
+        cd $GITHUB_WORKSPACE/kernel_workspace/docker-20.10
+        export PREFIX=/data/docker
+        mkdir -p src/github.com/docker
+        mv libnetwork src/github.com/docker/libnetwork
+        cd src/github.com/docker/libnetwork
+        #go mod init github.com/docker/libnetwork/cmd 
+        CGO_ENABLED=0 go build -a -ldflags '-extldflags "-static"' -o docker-proxy github.com/docker/libnetwork/cmd/proxy
+        sudo install -Dm 0700 docker-proxy $PREFIX/bin/docker-proxy
+        
+        
+
+    - name: build static tini
+      run: |
+        cd $GITHUB_WORKSPACE/kernel_workspace/docker-20.10
+        export PREFIX=/data/docker
+        cd tini
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PREFIX
+        make -j6
+        sudo install -Dm 0700 ./tini-static $PREFIX/bin/docker-init
+
+
+    - name: build static containerd
+      run: |
+        cd $GITHUB_WORKSPACE/kernel_workspace/docker-20.10
+        export PREFIX=/data/docker
+        cd containerd
+        SHIM_CGO_ENABLED=1 make BUILDTAGS="netgo osusergo no_btrfs static_build" EXTRA_FLAGS="-buildmode pie" EXTRA_LDFLAGS="-linkmode external -extldflags -fno-PIC -static" -j6 
+        DESTDIR=$PREFIX sudo make install
+
+
+
+    - name: build static runc
+      run: |                                                                                                 
+         cd $GITHUB_WORKSPACE/kernel_workspace/docker-20.10
+         export PREFIX=/data/docker
+         cd runc
+         make static
+         sudo install -Dm 0700 ./runc $PREFIX/bin/runc
+
+    - name: add docker tar
+      run: |
+        sudo bash -c 'cd /data && tar -czvf docker.tar.xz docker && cp docker.tar.xz /home/runner/work/builder-docker/builder-docker/kernel_workspace'
+    
+
+    - name: Upload docker binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-arm64
+        path: kernel_workspace/docker.tar.xz
+
+  
