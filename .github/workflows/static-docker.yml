@@ -54,8 +54,9 @@ jobs:
         cd $GITHUB_WORKSPACE/kernel_workspace/docker-20.10
         export PREFIX=/data/docker
         cd moby
-        make binary
-        sudo install -Dm 0700 $GITHUB_WORKSPACE/kernel_workspace/moby/bundles/binary-daemon/dockerd $PREFIX/bin/dockerd-dev
+        make binary 
+        sudo install -Dm 0700 bundles/binary-daemon/dockerd-dev $PREFIX/bin/dockerd-dev
+        #sudo install -Dm 0700 $GITHUB_WORKSPACE/kernel_workspace/moby/bundles/binary-daemon/dockerd $PREFIX/bin/dockerd-dev
         #sudo install -Dm 0700 $GITHUB_WORKSPACE/kernel_workspace/moby/bundles/binary/docker-init $PREFIX/bin/docker-init
         #sudo install -Dm 0700 $GITHUB_WORKSPACE/kernel_workspace/moby/bundles/binary/docker-proxy $PREFIX/bin/docker-proxy
 
