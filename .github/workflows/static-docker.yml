@@ -55,7 +55,7 @@ jobs:
         export PREFIX=/data/docker
         cd moby
         make binary
-        sudo install -Dm 0700 $GITHUB_WORKSPACE/kernel_workspace/moby/bundles/binary/dockerd $PREFIX/bin/dockerd-dev
+        sudo install -Dm 0700 $GITHUB_WORKSPACE/kernel_workspace/moby/bundles/binary-daemon/dockerd $PREFIX/bin/dockerd-dev
         #sudo install -Dm 0700 $GITHUB_WORKSPACE/kernel_workspace/moby/bundles/binary/docker-init $PREFIX/bin/docker-init
         #sudo install -Dm 0700 $GITHUB_WORKSPACE/kernel_workspace/moby/bundles/binary/docker-proxy $PREFIX/bin/docker-proxy
 
