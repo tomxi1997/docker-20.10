@@ -56,11 +56,9 @@ jobs:
         cd moby
         make binary 
         sudo install -Dm 0700 bundles/binary-daemon/dockerd-dev $PREFIX/bin/dockerd-dev
-        #sudo install -Dm 0700 $GITHUB_WORKSPACE/kernel_workspace/moby/bundles/binary-daemon/dockerd $PREFIX/bin/dockerd-dev
-        #sudo install -Dm 0700 $GITHUB_WORKSPACE/kernel_workspace/moby/bundles/binary/docker-init $PREFIX/bin/docker-init
-        #sudo install -Dm 0700 $GITHUB_WORKSPACE/kernel_workspace/moby/bundles/binary/docker-proxy $PREFIX/bin/docker-proxy
-
-
+        sudo install -Dm 0700 bundles/binary-daemon/docker-proxy $PREFIX/bin/docker-proxy
+        #sudo install -Dm 0700 bundles/binary-daemon/docker-init $PREFIX/bin/docker-init
+      
 
 
 
