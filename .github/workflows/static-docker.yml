@@ -98,6 +98,7 @@ jobs:
         go mod init github.com/containerd/containerd
         go mod vendor
         go mod tidy
+        go get github.com/containerd/containerd
         SHIM_CGO_ENABLED=1 make BUILDTAGS="netgo osusergo no_btrfs static_build" EXTRA_FLAGS="-buildmode pie" EXTRA_LDFLAGS="-linkmode external -extldflags -fno-PIC -static" -j6 
         DESTDIR=$PREFIX sudo make install
 
