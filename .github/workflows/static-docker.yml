@@ -96,7 +96,7 @@ jobs:
         mv containerd src/github.com/containerd/
         cd src/github.com/containerd/containerd
         go mod init github.com/containerd/containerd
-        go mod vendor
+        #go mod vendor
         #go mod tidy
         go get github.com/containerd/containerd
         go get github.com/containerd/containerd/api/events
