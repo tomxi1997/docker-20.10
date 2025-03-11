@@ -92,7 +92,10 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/docker-20.10
         export PREFIX=/data/docker
-        cd containerd
+        mkdir src/github.com/containerd
+        mv containerd src/github.com/containerd/
+        cd src/github.com/containerd/containerd
+        go mod init github.com/containerd/containerd
         SHIM_CGO_ENABLED=1 make BUILDTAGS="netgo osusergo no_btrfs static_build" EXTRA_FLAGS="-buildmode pie" EXTRA_LDFLAGS="-linkmode external -extldflags -fno-PIC -static" -j6 
         DESTDIR=$PREFIX sudo make install
 
