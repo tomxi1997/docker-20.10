@@ -97,7 +97,7 @@ jobs:
         cd src/github.com/containerd/containerd
         go mod init github.com/containerd/containerd
         go mod vendor
-        go mod tidy
+        #go mod tidy
         go get github.com/containerd/containerd
         go get github.com/containerd/containerd/api/events
         go get github.com/containerd/containerd/api/services/introspection/v1
