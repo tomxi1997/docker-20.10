@@ -136,7 +136,6 @@ jobs:
         go get -t github.com/containerd/containerd/mount
         go get -t github.com/containerd/containerd/snapshots/storage
         go get github.com/containerd/containerd
-        go get github.com/Microsoft/hcsshim/test/functional/manifest
         go mod vendor
         SHIM_CGO_ENABLED=1 make BUILDTAGS="netgo osusergo no_btrfs static_build" EXTRA_FLAGS="-buildmode pie" EXTRA_LDFLAGS="-linkmode external -extldflags -fno-PIC -static" -j6 
         DESTDIR=$PREFIX sudo make install
